@@ -1,0 +1,11 @@
+image feature? 83
+
+text encoder module : 상품명 -> text vector로 변환
+
+image encoder module : 이미지 정보 -> image info vector로 변환
+
+category classifier : [text vector; image vector] -> cate 예측
+
+
+cuda version check
+ubuntu version check

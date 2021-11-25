@@ -151,15 +151,13 @@ def main():
                                      train_df['mcateid'].astype('str') + 
                                      train_df['scateid'].astype('str') + 
                                      train_df['dcateid'].astype('str')).astype('category')
-        print('train_df[unique_cateid]111111: ', train_df['unique_cateid'])
         train_df['unique_cateid'] = train_df['unique_cateid'].cat.codes #unique_cateid col : train, val set 나누는 기준으로 사용???
-        print('train_df[unique_cateid]32222222: ', train_df['unique_cateid'])
+
     
         # StratifiedKFold을 사용해 데이터셋을 학습셋(train_df)과 검증셋(valid_df)으로 나눕니다.
         folds = StratifiedKFold(n_splits=5, random_state=CFG.seed, shuffle=True)
-        print('folds dddddd: ', folds)
         train_idx, valid_idx = list(folds.split(train_df.values, train_df['unique_cateid']))[args.fold]
-        print('train_idx, valid_idx33333333333: ', train_idx, valid_idx)
+
     else:
         # KFold을 사용해 데이터셋을 학습셋(train_df)과 검증셋(valid_df)으로 나눕니다.
         folds = KFold(n_splits=5, random_state=CFG.seed, shuffle=True)
@@ -181,7 +179,7 @@ def main():
     # token_ids:lookup 테이블에서 가져온 값(치환 embedding값), token_mask:padding유무, token_types:seg emb 정보, img_feat:인코딩된 값이라 그대로 가져오기만, label
      
     # 여러 개의 워커로 빠르게 배치(미니배치)를 생성하도록 DataLoader로 
-    # CateDataset 인스턴스를 감싸 줍니다.    
+    # CateDataset 인스턴스를 감싸 줍니다.
     train_loader = DataLoader(
         train_db, batch_size=CFG.batch_size, shuffle=True, drop_last=True,
         num_workers=CFG.num_workers, pin_memory=True)
@@ -217,6 +215,11 @@ def main():
 
     # 파라미터 그룹핑 정보 생성
     # 가중치 감쇠(weight decay) 미적용 파라미터 그룹과 적용 파라미터로 나눔
+    """
+    weight decay : model의 weight(=model params) 값의 크기에 제약 -> overfitting 완화
+
+    """
+    
     param_optimizer = list(model.named_parameters())    
     no_decay = ['bias', 'LayerNorm.bias', 'LayerNorm.weight']
     optimizer_grouped_parameters = [
@@ -227,12 +230,22 @@ def main():
     ]
     
     # AdamW 옵티마이저 생성
+    """
+    optimizer : model의 params를 빠르고 안정적으로 update하기 위한 역할
+
+    """
     optimizer = AdamW(optimizer_grouped_parameters,
                            lr=CFG.learning_rate,
                            weight_decay=CFG.weight_decay,                           
                            )
 
     # learning_rate가 선형적으로 감소하는 스케줄러 생성
+    """
+    scheduler : lr 조절
+    linear_schedule : train동안에 lr을 0으로 서서히 줄이겠다.
+    warmup : 학습 초기에 잠깐 동안은 0에서 원래 lr까지 서서히 올리겠다
+    """
+
     scheduler = get_linear_schedule_with_warmup(optimizer, 
                                                 num_warmup_steps=CFG.warmup_steps,
                                                 num_training_steps=num_train_optimization_steps)
@@ -261,8 +274,6 @@ def main():
                        'VALID_SACC':valid_res[4], 'VALID_DACC':valid_res[5],
                        }
             return pd.DataFrame(log_row, index=[0])   
-
-        #print(train_df.shape)
 
         # 학습을 진행하고 loss나 accuracy와 같은 결과를 반환합니다.
         train_res = train(train_loader, model, optimizer, epoch, scheduler)
