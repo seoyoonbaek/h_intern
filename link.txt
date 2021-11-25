@@ -1,0 +1,13 @@
+https://riverkangg.github.io/nlp/nlp-bertWordEmbedding/
+
+https://blog.naver.com/PostView.naver?blogId=vail131&logNo=222408673876&categoryNo=0&parentCategoryNo=0&viewDate=&currentPage=1&postListTopCurrentPage=1&from=postView
+
+https://runebook.dev/ko/docs/pytorch/generated/torch.nn.layernorm
+
+https://technical-support.tistory.com/95
+
+pytorch .new(1).fill_(0)
+
+https://scikit-learn.org/stable/modules/generated/sklearn.model_selection.KFold.html#sklearn.model_selection.KFold.split
+
+https://www.notion.so/wandb-0b0de71a4e664db0b4c556821c286187
